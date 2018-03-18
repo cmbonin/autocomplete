@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css?family=Titillium+Web:200,400,600');
+@import "lib/import";
+@import "components/import";
+
+:root {
+    --fs-base: 10px;
+    --wrapper-width: 96rem;
+
+
+    --c-grey-darkest: #67615e;
+    --c-grey: #afafaf;
+    --c-grey-lightest: #e4e1e0;
+    --c-white: #ffffff;
+
+    --c-blue: #567ebf;
+
+    --c-main: var(--c-blue);
+    --c-text: var(--c-grey-darkest);
+    --c-bg: var(--c-grey-lightest);
+
+
+    --ff-main: 'Titillium Web', sans-serif;
+    --fs-h1: 4.8rem;
+    --fs-main: 1.8rem;
+
+    --input-height: 6rem;
+    --input-padding: 2rem;
+    --input-indent: 6rem;
+
+}
+
+html, body {
+    font-size: var(--fs-base);
+    color: var(--c-text);
+    background-color: var(--c-bg);
+    font-family: var(--ff-main);
+}
+body {
+    padding: 4rem 0;
+}
+
+.wrapper {
+    max-width: var(--wrapper-width);
+    margin: auto;
+
+    text-align: center;
+}
+
+h1 {
+    font-size: var(--fs-h1);
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.autocomplete-container {
+    max-width: 300px;
+    margin: 0 auto;
+}

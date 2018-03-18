@@ -1,0 +1,10 @@
+input {
+    height: var(--input-height);
+    line-height: var(--input-height);
+
+    padding: 0 var(--input-padding);
+    font-size: var(--fs-main);
+    font-family: var(--ff-main);
+    color: var(--c-text);
+    border: 0;
+}
