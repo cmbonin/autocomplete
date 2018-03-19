@@ -1,11 +1,17 @@
-@import "~/css/base.css";
 
+$grey-darkest: #67615e;
+$c-grey-lightest: #e4e1e0;
+$color-white: #ffffff;
+$c-blue: #567ebf;
+$input-height: 6rem;
+$input-indent: 6rem;
 
 
 :host {
-    font-family: va(--ff-main);
+    font-family: 'courier', monospace;
     display: flex;
-    color: var(--c-grey-darkest);
+    color: $grey-darkest;
+    width: 100%;
 }
 
 :host * {
@@ -13,16 +19,18 @@
 }
 
 :host .autocomplete-wrapper {
-
+  width: 100%;
 }
 
 :host input {
-    background-color: var(--c-white);
+    background-color: $color-white;
     border: #fff 1px solid;
-    padding-left: var(--input-indent);
-    height: var(--input-height);
+    padding-left: $input-indent;
+    height: $input-height;
+    width: 100%;
+    outline: none;
     &:focus {
-        border-color: var(--c-blue);
+        border-color: $c-blue;
     }
 }
 
@@ -30,13 +38,13 @@
     position: relative;
     display: flex;
     &:before {
-        background: url('../../images/search.svg') 50% 50% no-repeat;
+        background: url('../assets/images/search.svg') 50% 50% no-repeat;
         content: '';
         position: absolute;
         left: 0;
         top: 0;
         bottom: 0;
-        width: var(--input-indent);
+        width: $input-indent;
         display: block;
     }
 }
@@ -44,31 +52,33 @@
 :host .list {
     margin: -10px 0 0 2rem;
     position: relative;
-    border: 1px solid var(--c-grey-lightest);
+    border: 1px solid $c-grey-lightest;
     border-top: none;
-    box-shadow: 1px 1px 2px var(--c-grey-lightest);
+    box-shadow: 1px 1px 2px $c-grey-lightest;
     display: none;
 }
 
-:host .display {
+:host .list.display {
     display: block;
 }
 
 :host .list-item {
     background: #fff;
-    height: var(--input-height);
+    height: $input-height;
     display: flex;
     justify-content: flex-start;
     align-items: center;
     text-align: right;
     padding: 1rem 1.5rem;
-    font-size: var(--fs-main);
+    font-size: 100%;
 }
 
 
+:host .list-item:hover,
 :host .list-item.active {
     background: #eff2f9;
     color: #ccc;
+    cursor: pointer;
 }
 
 :host .icon-profile {
@@ -84,7 +94,7 @@
 }
 
 :host .btn-toggle {
-    background-color: var(--c-white);
+    background-color: $color-white;
     position: relative;
     border: none;
     position: absolute;
@@ -102,6 +112,6 @@
         height: 25px;
         content: '';
         display: block;
-        background: url('../../images/arrow.svg') 50% 50% no-repeat;
+        background: url('../assets/images/arrow.svg') 50% 50% no-repeat;
     }
 }
