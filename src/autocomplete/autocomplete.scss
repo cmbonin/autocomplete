@@ -1,0 +1,118 @@
+$grey-darkest: #67615e;
+$c-grey-lightest: #e4e1e0;
+$color-white: #ffffff;
+$c-blue: #567ebf;
+$input-height: 6rem;
+$input-indent: 6rem;
+
+:host {
+  font-family: 'courier', monospace;
+  display: flex;
+  color: $grey-darkest;
+  width: 100%;
+}
+
+:host * {
+  box-sizing: border-box;
+}
+
+:host .autocomplete-wrapper {
+  width: 100%;
+}
+
+:host input {
+  background-color: $color-white;
+  border: #fff 1px solid;
+  padding-left: $input-indent;
+  height: $input-height;
+  width: 100%;
+  outline: none;
+
+  &:focus {
+    border-color: $c-blue;
+  }
+}
+
+:host .input-wrapper {
+  position: relative;
+  display: flex;
+
+  &:before {
+    background: url("../assets/images/search.svg") 50% 50% no-repeat;
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: $input-indent;
+    display: block;
+  }
+}
+
+:host .list {
+  margin: -10px 0 0 2rem;
+  position: relative;
+  border: 1px solid $c-grey-lightest;
+  border-top: none;
+  box-shadow: 1px 1px 2px $c-grey-lightest;
+  display: none;
+  max-height: 600px;
+  overflow: auto;
+}
+
+:host .list.display {
+  display: block;
+}
+
+:host .list-item {
+  background: #fff;
+  height: $input-height;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: right;
+  padding: 1rem 1.5rem;
+  font-size: 100%;
+}
+
+:host .list-item.active,
+:host .list-item:hover {
+  background: #eff2f9;
+  color: #ccc;
+  cursor: pointer;
+}
+
+:host .icon-profile {
+  border-radius: 50%;
+  overflow: hidden;
+  width: 4rem;
+  height: 4rem;
+  margin-right: 10px;
+}
+
+:host .icon-profile img {
+  max-width: 100%;
+}
+
+:host .btn-toggle {
+  background-color: $color-white;
+  border: none;
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  width: 5rem;
+  padding: 0;
+  outline: none;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+
+  &:before {
+    width: 25px;
+    height: 25px;
+    content: '';
+    display: block;
+    background: url("../assets/images/arrow.svg") 50% 50% no-repeat;
+  }
+}
