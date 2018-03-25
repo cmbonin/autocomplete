@@ -8,6 +8,7 @@ var CopyWebpackPlugin = require('copy-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
+  mode: 'development',
   devtool: 'eval-source-map',
   entry: {
     'index.html': [ path.join(__dirname, 'src/index.html'), hotMiddlewareScript ],
@@ -30,7 +31,7 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('development')
     }),
-    new ExtractTextPlugin("app.css"),
+    new ExtractTextPlugin('app.css'),
   ],
   module: {
     rules: [
@@ -62,5 +63,5 @@ module.exports = {
         }
       }
     ]
-  },
+  }
 };

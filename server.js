@@ -5,9 +5,10 @@ const express = require('express');
 const webpack = require('webpack');
 const webpackMiddleware = require('webpack-dev-middleware');
 const webpackHotMiddleware = require('webpack-hot-middleware');
-const config = require('./webpack.config.js');
 
 const isDeveloping = process.env.NODE_ENV !== 'production';
+const config = isDeveloping ? require('./webpack.config.js') : require('./webpack.production.config.js');
+
 const port = isDeveloping ? 3000 : process.env.PORT;
 const app = express();
 
@@ -33,6 +34,7 @@ if (isDeveloping) {
     res.end();
   });
 } else {
+  console.log('here')
   app.use(express.static(__dirname + '/dist'));
   app.get('*', function response(req, res) {
     res.sendFile(path.join(__dirname, 'dist/index.html'));

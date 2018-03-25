@@ -4,13 +4,14 @@ var path = require('path');
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var StatsPlugin = require('stats-webpack-plugin');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
+var UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
+  mode: JSON.stringify(process.env.NODE_ENV),
   entry: {
-    'index.html': [ path.join(__dirname, 'src/index.html'), hotMiddlewareScript ],
-    'js/autocomplete/autocomplete': [ path.join(__dirname, 'src/autocomplete/autocomplete.js'), hotMiddlewareScript ],
-    'main': [ path.join(__dirname, 'src/main.js'), hotMiddlewareScript ]
+    'js/autocomplete/autocomplete': [ path.join(__dirname, 'src/autocomplete/autocomplete.js') ],
+    'main': [ path.join(__dirname, 'src/main.js') ]
   },
   output: {
     path: path.join(__dirname, '/dist/'),
@@ -18,22 +19,30 @@ module.exports = {
     publicPath: '/'
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: 'src/index.tpl.html',
-      inject: 'body',
-      filename: 'index.html'
-    }),
+    new CopyWebpackPlugin([
+      { from: path.resolve(__dirname, 'src/assets'), to: 'assets' },
+      { from: path.resolve(__dirname, 'src/index.html'), to: './' }
+    ]),
     new ExtractTextPlugin('[name]-[hash].min.css'),
-    new webpack.optimize.UglifyJsPlugin({
-      compressor: {
-        warnings: false,
-        screw_ie8: true
-      }
-    }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
     })
   ],
+  optimization: {
+    minimizer: [
+      new UglifyJsPlugin({
+        cache: true,
+        parallel: true,
+        uglifyOptions: {
+          compress: true,
+          ecma: 6,
+          mangle: true
+        },
+        ie8: false,
+        sourceMap: false
+      })
+    ]
+  },
   module: {
     rules: [
       {
@@ -51,9 +60,9 @@ module.exports = {
       },
       {
         test: /\.scss$/,
-        include: path.join(__dirname, 'src/assets'),
+        include: path.resolve(__dirname, 'src/assets/'),
         use: ExtractTextPlugin.extract({
-            use: ['css-loader', 'sass-loader']
+          use: ['css-loader', 'sass-loader']
         })
       },
       {
