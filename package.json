@@ -17,7 +17,7 @@
   "scripts": {
     "test": "",
     "start": "node server",
-    "build": "rimraf dist && webpack --mode production"
+    "build": "rimraf dist && webpack --mode production  --config ./webpack.production.config.js"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
