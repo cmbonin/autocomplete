@@ -1,3 +1,9 @@
+# dependencies
 node_modules
-yarn.lock
-.DS_Store
+
+# production
+build
+
+npm-debug.log
+.vscode
+

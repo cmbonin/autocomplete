@@ -37,16 +37,16 @@ $input-indent: 6rem;
   position: relative;
   display: flex;
 
-  &:before {
-    background: url("../assets/images/search.svg") 50% 50% no-repeat;
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: $input-indent;
-    display: block;
-  }
+  // &:before {
+  //   background: url("../assets/images/search.svg") 50% 50% no-repeat;
+  //   content: '';
+  //   position: absolute;
+  //   left: 0;
+  //   top: 0;
+  //   bottom: 0;
+  //   width: $input-indent;
+  //   display: block;
+  // }
 }
 
 :host .list {
@@ -109,10 +109,10 @@ $input-indent: 6rem;
   justify-content: center;
 
   &:before {
-    width: 25px;
-    height: 25px;
     content: '';
     display: block;
-    background: url("../assets/images/arrow.svg") 50% 50% no-repeat;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 20px solid $grey-darkest;
   }
 }

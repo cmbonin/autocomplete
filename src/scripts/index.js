@@ -1,16 +1,29 @@
+// import '../styles/index.scss';
+
+console.log('webpack starterkitsss');
 /**
  * Imports the Sass file, and converts it to a css string for use in the
  * web component's template.
  */
-import css from 'css-loader!sass-loader!./autocomplete.scss';
+// import css from '../styles/index.scss';
+import css from '!!css-loader!sass-loader!../styles/index.scss';
+// !!css-loader!sass-loader!
+// console.log(css);
 const CSS = css.toString();
-const dataURL = './assets/data.js';
+// const CSS = `:host {
+//   font-family: 'courier', monospace;
+//   display: flex;
+//   color: $grey-darkest;
+//   width: 100%;
+// }`;
+const dataURL = 'https://randomuser.me/api/?inc=picture,name&results=200';
 const HTML = `<div class="autocomplete-wrapper">
     <div class="input-wrapper">
+      <div class="search-icon" />
         <input type="text" placeholder="Search for a person">
-        <button class="btn-toggle"></button>
+        <button class="btn-toggle" />
     </div>
-    <div class="list"></div>
+    <div class="list" />
 </div>`;
 
 class MAutocomplete extends HTMLElement {
@@ -22,7 +35,7 @@ class MAutocomplete extends HTMLElement {
   set value(val) {
     this.setAttribute('value', val);
     if (val === '') {
-      this.hideList()
+      this.hideList();
     }
   }
 
@@ -31,11 +44,11 @@ class MAutocomplete extends HTMLElement {
   }
 
   get listElement() {
-    return this.shadowRoot.querySelector('.list')
+    return this.shadowRoot.querySelector('.list');
   }
 
   get inputWrapper() {
-    return this.shadowRoot.querySelector('.input-wrapper')
+    return this.shadowRoot.querySelector('.input-wrapper');
   }
 
   constructor() {
@@ -62,11 +75,11 @@ class MAutocomplete extends HTMLElement {
   init() {
     this.fetchList()
       .then(res => {
-        this.people = res;
+        this.people = res.results; // TODO: santiy check
         this.initEvents();
         this.initElems();
       })
-      .catch(err => console.log(err))
+      .catch(err => console.log(err));
   }
 
   initElems() {
@@ -84,11 +97,11 @@ class MAutocomplete extends HTMLElement {
     this.addEventListener('input', this.onInput);
     this.addEventListener('keydown', this.onKeyDown);
     this.listElement.addEventListener('click', listClick);
-    btn.addEventListener('click', dropDown)
+    btn.addEventListener('click', dropDown);
   }
 
   onInput() {
-    const input = this.shadowRoot.querySelector('input')
+    const input = this.shadowRoot.querySelector('input');
     const newValue = input.value;
     this.value = newValue;
     this.activeFocusIndex = -1;
@@ -142,7 +155,7 @@ class MAutocomplete extends HTMLElement {
     const options = this.listElement.childNodes;
     const listItem = this.listElement.querySelector(`div[data-index="${this.activeFocusIndex}"]`);
     options.forEach(item => {
-      item.classList.remove('active')
+      item.classList.remove('active');
     });
     if (listItem && listItem.classList) {
       listItem.classList.add('active');
@@ -168,18 +181,18 @@ class MAutocomplete extends HTMLElement {
     listElement.classList.add('display');
     listElement.innerHTML = '';
     list.map((item, index) => {
-      listElement.append(this.createListItem(item, index))
+      listElement.append(this.createListItem(item, index));
     });
     this.listOpen = true;
   }
 
   createListItem(item, index) {
-    const option = document.createElement('div');
+    const option = document.createElement('divprofile');
     const name = `${item.name.first} ${item.name.last}`;
-    const profileUrl = item.profile;
+    const profileThumbnail = item.picture.thumbnail; // TODO: sanity
     const img = document.createElement('div');
     const profileImg = document.createElement('img');
-    profileImg.setAttribute('src', profileUrl);
+    profileImg.setAttribute('src', profileThumbnail);
     img.append(profileImg);
     img.className = 'icon-profile';
     option.innerHTML = name;
@@ -195,10 +208,10 @@ class MAutocomplete extends HTMLElement {
     return people.reduce((newList, item, index) => {
       const name = item.name;
       if ((name.first + name.last).indexOf(newValue) !== -1) {
-        newList.push(item)
+        newList.push(item);
       }
       return newList;
-    }, [])
+    }, []);
   }
 
   dropDown() {
@@ -210,14 +223,14 @@ class MAutocomplete extends HTMLElement {
   }
 
   fetchList() {
-
+    // TODO: convert to await
     return new Promise((resolve, reject) => {
       return fetch(dataURL)
         .then(res => {
-          resolve(res.json());
+          resolve((res.json()));
         })
-        .then(err => reject(err))
-    })
+        .then(err => reject(err));
+    });
   }
 
   disconnectedCallback() {
@@ -229,7 +242,7 @@ class MAutocomplete extends HTMLElement {
     this.removeEventListener('input', this.onInput);
     this.removeEventListener('keydown', this.onKeyDown);
     this.listElement.removeEventListener('click', listClick);
-    btn.addEventListener('click', dropDown)
+    btn.addEventListener('click', dropDown);
   }
 }
 
