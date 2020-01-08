@@ -1,29 +1,17 @@
-// import '../styles/index.scss';
-
-console.log('webpack starterkitsss');
 /**
- * Imports the Sass file, and converts it to a css string for use in the
- * web component's template.
+ * Custom web component search field
+ * Auto complete functionality, uses randomuser.me api
  */
-// import css from '../styles/index.scss';
 import css from '!!css-loader!sass-loader!../styles/index.scss';
-// !!css-loader!sass-loader!
-// console.log(css);
 const CSS = css.toString();
-// const CSS = `:host {
-//   font-family: 'courier', monospace;
-//   display: flex;
-//   color: $grey-darkest;
-//   width: 100%;
-// }`;
 const dataURL = 'https://randomuser.me/api/?inc=picture,name&results=200';
 const HTML = `<div class="autocomplete-wrapper">
-    <div class="input-wrapper">
-      <div class="search-icon" />
-        <input type="text" placeholder="Search for a person">
-        <button class="btn-toggle" />
-    </div>
-    <div class="list" />
+  <div class="input-wrapper">
+    <div class="search-icon"></div>
+    <input type="text" placeholder="Search for a person">
+    <button class="btn-dropdown"></div>
+    <div class="list"></div>
+  </div>
 </div>`;
 
 class MAutocomplete extends HTMLElement {
@@ -88,7 +76,7 @@ class MAutocomplete extends HTMLElement {
 
   initEvents() {
     const input = this.shadowRoot.querySelector('input');
-    const btn = this.shadowRoot.querySelector('.btn-toggle');
+    const btn = this.shadowRoot.querySelector('.btn-dropdown');
     if (!input || !btn) {
       return;
     }
@@ -235,7 +223,7 @@ class MAutocomplete extends HTMLElement {
 
   disconnectedCallback() {
     const input = this.shadowRoot.querySelector('input');
-    const btn = this.shadowRoot.querySelector('.btn-toggle');
+    const btn = this.shadowRoot.querySelector('.btn-dropdown');
     if (!input || !btn) {
       return;
     }

@@ -1,14 +1,19 @@
-$grey-darkest: #67615e;
-$c-grey-lightest: #e4e1e0;
-$color-white: #ffffff;
-$c-blue: #567ebf;
-$input-height: 6rem;
-$input-indent: 6rem;
+$color-default-dark: #67615e;
+$color-default-medium: #999;
+$color-default-light: #d6d4d3;
+$color-light: #ffffff;
+$color-highlight: #eff2f9;
+$input-height: 40px;
+$search-icon-space: 40px;
+$search-icon-width: 8px;
+$caret-height: 5px;
+$profile-img-height: 30px;
+$space: ('md': 10px, 'lg': 40px);
 
 :host {
   font-family: 'courier', monospace;
   display: flex;
-  color: $grey-darkest;
+  color: $color-default-dark;
   width: 100%;
 }
 
@@ -21,40 +26,56 @@ $input-indent: 6rem;
 }
 
 :host input {
-  background-color: $color-white;
-  border: #fff 1px solid;
-  padding-left: $input-indent;
+  background-color: $color-light;
+  border: $color-default-light 1px solid;
+  padding-left: $search-icon-space;
   height: $input-height;
   width: 100%;
   outline: none;
 
   &:focus {
-    border-color: $c-blue;
+    box-shadow: 1px 1px 2px $color-default-light;
   }
 }
 
 :host .input-wrapper {
   position: relative;
   display: flex;
+}
 
-  // &:before {
-  //   background: url("../assets/images/search.svg") 50% 50% no-repeat;
-  //   content: '';
-  //   position: absolute;
-  //   left: 0;
-  //   top: 0;
-  //   bottom: 0;
-  //   width: $input-indent;
-  //   display: block;
-  // }
+.search-icon {
+  position: absolute;
+  transform: translate(50%, -50%);
+  top: 50%;
+  left: map-get($space , 'md');;
+
+  &:after {
+    content: '';
+    height: $search-icon-width;
+    width: $search-icon-width;
+    display: block;
+    border: 2px solid $color-default-medium;
+    border-radius: 50%;
+  }
+
+  &:before {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: -($search-icon-width/2);
+    display: block;
+    border: 1px  solid $color-default-medium;
+    height: $search-icon-width/2;
+    transform: rotate(-45deg);
+  }
 }
 
 :host .list {
-  margin: -10px 0 0 2rem;
+  margin: 0 0 0 $search-icon-space;
   position: relative;
-  border: 1px solid $c-grey-lightest;
+  border: 1px solid $color-default-light;
   border-top: none;
-  box-shadow: 1px 1px 2px $c-grey-lightest;
+  box-shadow: 1px 1px 2px $color-default-light;
   display: none;
   max-height: 600px;
   overflow: auto;
@@ -65,43 +86,43 @@ $input-indent: 6rem;
 }
 
 :host .list-item {
-  background: #fff;
+  background: $color-light;
   height: $input-height;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   text-align: right;
-  padding: 1rem 1.5rem;
+  padding: map-get($space , 'md');
   font-size: 100%;
-}
-
-:host .list-item.active,
-:host .list-item:hover {
-  background: #eff2f9;
-  color: #ccc;
-  cursor: pointer;
+  
+  &:active,
+  &:hover {
+    background: $color-highlight;
+    color: $color-default-medium;
+    cursor: pointer;
+  }
 }
 
 :host .icon-profile {
   border-radius: 50%;
   overflow: hidden;
-  width: 4rem;
-  height: 4rem;
-  margin-right: 10px;
+  width: $profile-img-height;
+  height: $profile-img-height;
+  margin-right: map-get($space , 'md');
 }
 
 :host .icon-profile img {
   max-width: 100%;
 }
 
-:host .btn-toggle {
-  background-color: $color-white;
+:host .btn-dropdown {
+  background-color: $color-light;
   border: none;
   position: absolute;
   right: 1px;
   top: 1px;
   bottom: 1px;
-  width: 5rem;
+  width: map-get($space, 'lg');
   padding: 0;
   outline: none;
   display: flex;
@@ -111,8 +132,12 @@ $input-indent: 6rem;
   &:before {
     content: '';
     display: block;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-top: 20px solid $grey-darkest;
+    border-left: $caret-height solid transparent;
+    border-right: $caret-height solid transparent;
+    border-top: $caret-height solid $color-default-dark;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 }
