@@ -3,14 +3,15 @@
  * Auto complete functionality, uses randomuser.me api
  */
 import css from '!!css-loader!sass-loader!../styles/index.scss';
+
 const CSS = css.toString();
-const dataURL = 'https://randomuser.me/api/?inc=picture,name&results=200';
+const DATAURL = 'https://randomuser.me/api/?inc=picture,name&results=200';
 const HTML = `<div class="autocomplete-wrapper">
   <div class="input-wrapper">
     <div class="search-icon"></div>
     <input type="text" placeholder="Search for a person">
     <button class="btn-dropdown"></div>
-    <div class="list"></div>
+    <div class="dropdown"></div>
   </div>
 </div>`;
 
@@ -23,7 +24,7 @@ class MAutocomplete extends HTMLElement {
   set value(val) {
     this.setAttribute('value', val);
     if (val === '') {
-      this.hideList();
+      this.hideDropDown();
     }
   }
 
@@ -31,8 +32,8 @@ class MAutocomplete extends HTMLElement {
     return this.getAttribute('value');
   }
 
-  get listElement() {
-    return this.shadowRoot.querySelector('.list');
+  get dropDown() {
+    return this.shadowRoot.querySelector('.dropdown');
   }
 
   get inputWrapper() {
@@ -47,7 +48,7 @@ class MAutocomplete extends HTMLElement {
     this.people = null;
     this.filteredPeople = [];
     this.activeFocusIndex = -1;
-    this.listOpen = false;
+    this.dropDownOpen = false;
   }
 
   connectedCallback() {
@@ -61,17 +62,18 @@ class MAutocomplete extends HTMLElement {
 
 
   init() {
-    this.fetchList()
+    this.fetchData()
       .then(res => {
-        this.people = res.results; // TODO: santiy check
+        this.people = res.results || [];
         this.initEvents();
         this.initElems();
       })
       .catch(err => console.log(err));
   }
+  
 
   initElems() {
-    this.hideList();
+    this.hideDropDown();
   }
 
   initEvents() {
@@ -80,12 +82,18 @@ class MAutocomplete extends HTMLElement {
     if (!input || !btn) {
       return;
     }
-    const listClick = this.listClick.bind(this);
+    const dropDownClick = this.dropDownClick.bind(this);
     const dropDown = this.dropDown.bind(this);
     this.addEventListener('input', this.onInput);
     this.addEventListener('keydown', this.onKeyDown);
-    this.listElement.addEventListener('click', listClick);
+    this.dropDown.addEventListener('click', dropDownClick);
     btn.addEventListener('click', dropDown);
+  }
+
+  async fetchData() {
+    const response = await fetch(DATAURL);
+    const json = await response.json();
+    return json;
   }
 
   onInput() {
@@ -94,36 +102,36 @@ class MAutocomplete extends HTMLElement {
     this.value = newValue;
     this.activeFocusIndex = -1;
     if (newValue !== '') {
-      this.displayList(this.getFilteredList(newValue));
+      this.displayDropDown(this.getFilteredList(newValue));
     }
   }
 
   onKeyDown(e) {
     const list = this.filteredPeople;
     const maxCount = list.length - 1;
-    if (e.keyCode == 40) {
+    if (e.keyCode === 40) {
       // down arrow key
       this.activeFocusIndex = (this.activeFocusIndex >= maxCount) ? 0 : this.activeFocusIndex + 1;
       this.activateListItem();
-    } else if (e.keyCode == 38) {
+    } else if (e.keyCode === 38) {
       // up arrow key
       this.activeFocusIndex = (this.activeFocusIndex === 0) ? maxCount : this.activeFocusIndex - 1;
       this.activateListItem();
-    } else if (e.keyCode == 13) {
+    } else if (e.keyCode === 13) {
       // enter key
       this.itemSelect(this.activeFocusIndex);
       e.preventDefault();
     }
   }
 
-  listClick(e) {
+  dropDownClick(e) {
     const val = e.target.getAttribute('data-value');
     this.setValue(val);
     e.preventDefault();
   }
 
   itemSelect(index) {
-    const item = this.listElement.childNodes[index];
+    const item = this.dropDown.childNodes[index];
     const val = (item) ? item.getAttribute('data-value') : false;
     this.setValue(val);
 
@@ -134,14 +142,14 @@ class MAutocomplete extends HTMLElement {
       const input = this.shadowRoot.querySelector('input');
       this.value = val;
       input.value = val;
-      this.hideList();
+      this.hideDropDown();
       input.focus();
     }
   }
 
   activateListItem() {
-    const options = this.listElement.childNodes;
-    const listItem = this.listElement.querySelector(`div[data-index="${this.activeFocusIndex}"]`);
+    const options = this.dropDown.childNodes;
+    const listItem = this.dropDown.querySelector(`div[data-index="${this.activeFocusIndex}"]`);
     options.forEach(item => {
       item.classList.remove('active');
     });
@@ -150,43 +158,44 @@ class MAutocomplete extends HTMLElement {
     }
   }
 
-  displayList(list) {
+  displayDropDown(list) {
     this.filteredPeople = list;
     if (!list || !list.length || list.length <= 0) {
-      this.hideList();
+      this.hideDropDown();
     } else {
-      this.showList(list);
+      this.showDropDown(list);
     }
   }
 
-  hideList() {
-    this.listElement.classList.remove('display');
-    this.listOpen = false;
+  hideDropDown() {
+    this.dropDown.classList.remove('display');
+    this.dropDownOpen = false;
   }
 
-  showList(list) {
-    const listElement = this.listElement;
-    listElement.classList.add('display');
-    listElement.innerHTML = '';
+  showDropDown(list) {
+    const dropDown = this.dropDown;
+    dropDown.classList.add('display');
+    dropDown.innerHTML = '';
     list.map((item, index) => {
-      listElement.append(this.createListItem(item, index));
+      dropDown.append(this.createListItem(item, index));
     });
-    this.listOpen = true;
+    this.dropDownOpen = true;
   }
 
   createListItem(item, index) {
-    const option = document.createElement('divprofile');
-    const name = `${item.name.first} ${item.name.last}`;
-    const profileThumbnail = item.picture.thumbnail; // TODO: sanity
+    const {name, picture} = item;
+    const option = document.createElement('div');
+    const fullName = (name) ? `${name.first} ${name.last}` : '';
+    const profileThumbnail = (picture) ? picture.thumbnail : '';
     const img = document.createElement('div');
     const profileImg = document.createElement('img');
     profileImg.setAttribute('src', profileThumbnail);
     img.append(profileImg);
     img.className = 'icon-profile';
-    option.innerHTML = name;
+    option.innerHTML = fullName;
     option.className = 'list-item';
     option.setAttribute('data-index', index);
-    option.setAttribute('data-value', name);
+    option.setAttribute('data-value', fullName);
     option.prepend(img);
     return option;
   }
@@ -203,23 +212,13 @@ class MAutocomplete extends HTMLElement {
   }
 
   dropDown() {
-    if (this.listOpen) {
-      this.hideList();
+    if (this.dropDownOpen) {
+      this.hideDropDown();
     } else {
-      this.showList(this.people);
+      this.showDropDown(this.people);
     }
   }
 
-  fetchList() {
-    // TODO: convert to await
-    return new Promise((resolve, reject) => {
-      return fetch(dataURL)
-        .then(res => {
-          resolve((res.json()));
-        })
-        .then(err => reject(err));
-    });
-  }
 
   disconnectedCallback() {
     const input = this.shadowRoot.querySelector('input');
@@ -229,7 +228,7 @@ class MAutocomplete extends HTMLElement {
     }
     this.removeEventListener('input', this.onInput);
     this.removeEventListener('keydown', this.onKeyDown);
-    this.listElement.removeEventListener('click', listClick);
+    this.dropDown.removeEventListener('click', dropDownClick);
     btn.addEventListener('click', dropDown);
   }
 }
