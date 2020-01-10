@@ -2,7 +2,7 @@ $color-default-dark: #67615e;
 $color-default-medium: #999;
 $color-default-light: #d6d4d3;
 $color-light: #ffffff;
-$color-highlight: #eff2f9;
+$color-highlight: #fdf35e;
 $input-height: 40px;
 $search-icon-space: 40px;
 $search-icon-width: 8px;
@@ -70,7 +70,8 @@ $space: ('md': 10px, 'lg': 40px);
   }
 }
 
-:host .list {
+:host .dropdown {
+  background-color: $color-light;
   margin: 0 0 0 $search-icon-space;
   position: relative;
   border: 1px solid $color-default-light;
@@ -81,7 +82,7 @@ $space: ('md': 10px, 'lg': 40px);
   overflow: auto;
 }
 
-:host .list.display {
+:host .dropdown.display {
   display: block;
 }
 

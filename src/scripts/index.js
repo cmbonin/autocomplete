@@ -2,6 +2,7 @@
  * Custom web component search field
  * Auto complete functionality, uses randomuser.me api
  */
+
 import css from '!!css-loader!sass-loader!../styles/index.scss';
 
 const CSS = css.toString();
@@ -32,7 +33,7 @@ class MAutocomplete extends HTMLElement {
     return this.getAttribute('value');
   }
 
-  get dropDown() {
+  get dropDownElem() {
     return this.shadowRoot.querySelector('.dropdown');
   }
 
@@ -70,7 +71,6 @@ class MAutocomplete extends HTMLElement {
       })
       .catch(err => console.log(err));
   }
-  
 
   initElems() {
     this.hideDropDown();
@@ -82,18 +82,12 @@ class MAutocomplete extends HTMLElement {
     if (!input || !btn) {
       return;
     }
-    const dropDownClick = this.dropDownClick.bind(this);
-    const dropDown = this.dropDown.bind(this);
+    const dropDownSelect = this.dropDownSelect.bind(this);
+    const toggleDropDown = this.toggleDropDown.bind(this);
     this.addEventListener('input', this.onInput);
     this.addEventListener('keydown', this.onKeyDown);
-    this.dropDown.addEventListener('click', dropDownClick);
-    btn.addEventListener('click', dropDown);
-  }
-
-  async fetchData() {
-    const response = await fetch(DATAURL);
-    const json = await response.json();
-    return json;
+    this.dropDownElem.addEventListener('click', dropDownSelect);
+    btn.addEventListener('click', toggleDropDown);
   }
 
   onInput() {
@@ -124,14 +118,14 @@ class MAutocomplete extends HTMLElement {
     }
   }
 
-  dropDownClick(e) {
+  dropDownSelect(e) {
     const val = e.target.getAttribute('data-value');
     this.setValue(val);
     e.preventDefault();
   }
 
   itemSelect(index) {
-    const item = this.dropDown.childNodes[index];
+    const item = this.dropDownElem.childNodes[index];
     const val = (item) ? item.getAttribute('data-value') : false;
     this.setValue(val);
 
@@ -148,8 +142,8 @@ class MAutocomplete extends HTMLElement {
   }
 
   activateListItem() {
-    const options = this.dropDown.childNodes;
-    const listItem = this.dropDown.querySelector(`div[data-index="${this.activeFocusIndex}"]`);
+    const options = this.dropDownElem.childNodes;
+    const listItem = this.dropDownElem.querySelector(`div[data-index="${this.activeFocusIndex}"]`);
     options.forEach(item => {
       item.classList.remove('active');
     });
@@ -168,16 +162,16 @@ class MAutocomplete extends HTMLElement {
   }
 
   hideDropDown() {
-    this.dropDown.classList.remove('display');
+    this.dropDownElem.classList.remove('display');
     this.dropDownOpen = false;
   }
 
   showDropDown(list) {
-    const dropDown = this.dropDown;
-    dropDown.classList.add('display');
-    dropDown.innerHTML = '';
+    const dropDownElem = this.dropDownElem;
+    dropDownElem.classList.add('display');
+    dropDownElem.innerHTML = '';
     list.map((item, index) => {
-      dropDown.append(this.createListItem(item, index));
+      dropDownElem.append(this.createListItem(item, index));
     });
     this.dropDownOpen = true;
   }
@@ -189,6 +183,7 @@ class MAutocomplete extends HTMLElement {
     const profileThumbnail = (picture) ? picture.thumbnail : '';
     const img = document.createElement('div');
     const profileImg = document.createElement('img');
+
     profileImg.setAttribute('src', profileThumbnail);
     img.append(profileImg);
     img.className = 'icon-profile';
@@ -202,16 +197,17 @@ class MAutocomplete extends HTMLElement {
 
   getFilteredList(newValue) {
     const people = this.people;
+    const searchValue = newValue.toLowerCase();
     return people.reduce((newList, item, index) => {
-      const name = item.name;
-      if ((name.first + name.last).indexOf(newValue) !== -1) {
+      const fullName = (this.getFullname(item.name)).toLowerCase();
+      if (fullName.indexOf(searchValue) !== -1) {
         newList.push(item);
       }
       return newList;
     }, []);
   }
 
-  dropDown() {
+  toggleDropDown() {
     if (this.dropDownOpen) {
       this.hideDropDown();
     } else {
@@ -219,6 +215,11 @@ class MAutocomplete extends HTMLElement {
     }
   }
 
+  async fetchData() {
+    const response = await fetch(DATAURL);
+    const json = await response.json();
+    return json;
+  }
 
   disconnectedCallback() {
     const input = this.shadowRoot.querySelector('input');
@@ -228,8 +229,13 @@ class MAutocomplete extends HTMLElement {
     }
     this.removeEventListener('input', this.onInput);
     this.removeEventListener('keydown', this.onKeyDown);
-    this.dropDown.removeEventListener('click', dropDownClick);
-    btn.addEventListener('click', dropDown);
+    this.dropDownElem.removeEventListener('click', this.dropDownSelect);
+    btn.removeEventListener('click', this.toggleDropDown);
+  }
+
+  getFullname(nameObj) {
+    const { first, last } = nameObj;
+    return `${first} ${last}`;
   }
 }
 
