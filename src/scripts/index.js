@@ -1,16 +1,19 @@
 /**
- * Imports the Sass file, and converts it to a css string for use in the
- * web component's template.
+ * Custom web component search field
+ * Auto complete functionality, uses randomuser.me api
  */
-import css from 'css-loader!sass-loader!./autocomplete.scss';
+
+import css from '!!css-loader!sass-loader!../styles/index.scss';
+
 const CSS = css.toString();
-const dataURL = './assets/data.js';
+const DATAURL = 'https://randomuser.me/api/?inc=picture,name&results=200';
 const HTML = `<div class="autocomplete-wrapper">
-    <div class="input-wrapper">
-        <input type="text" placeholder="Search for a person">
-        <button class="btn-toggle"></button>
-    </div>
-    <div class="list"></div>
+  <div class="input-wrapper">
+    <div class="search-icon"></div>
+    <input type="text" placeholder="Search for a person">
+    <button class="btn-dropdown"></div>
+    <div class="dropdown"></div>
+  </div>
 </div>`;
 
 class MAutocomplete extends HTMLElement {
@@ -22,7 +25,7 @@ class MAutocomplete extends HTMLElement {
   set value(val) {
     this.setAttribute('value', val);
     if (val === '') {
-      this.hideList()
+      this.hideDropDown();
     }
   }
 
@@ -30,12 +33,12 @@ class MAutocomplete extends HTMLElement {
     return this.getAttribute('value');
   }
 
-  get listElement() {
-    return this.shadowRoot.querySelector('.list')
+  get dropDownElem() {
+    return this.shadowRoot.querySelector('.dropdown');
   }
 
   get inputWrapper() {
-    return this.shadowRoot.querySelector('.input-wrapper')
+    return this.shadowRoot.querySelector('.input-wrapper');
   }
 
   constructor() {
@@ -46,7 +49,7 @@ class MAutocomplete extends HTMLElement {
     this.people = null;
     this.filteredPeople = [];
     this.activeFocusIndex = -1;
-    this.listOpen = false;
+    this.dropDownOpen = false;
   }
 
   connectedCallback() {
@@ -60,69 +63,69 @@ class MAutocomplete extends HTMLElement {
 
 
   init() {
-    this.fetchList()
+    this.fetchData()
       .then(res => {
-        this.people = res;
+        this.people = res.results || [];
         this.initEvents();
         this.initElems();
       })
-      .catch(err => console.log(err))
+      .catch(err => console.log(err));
   }
 
   initElems() {
-    this.hideList();
+    this.hideDropDown();
   }
 
   initEvents() {
     const input = this.shadowRoot.querySelector('input');
-    const btn = this.shadowRoot.querySelector('.btn-toggle');
+    const btn = this.shadowRoot.querySelector('.btn-dropdown');
     if (!input || !btn) {
       return;
     }
-    const listClick = this.listClick.bind(this);
-    const dropDown = this.dropDown.bind(this);
+    const dropDownSelect = this.dropDownSelect.bind(this);
+    const toggleDropDown = this.toggleDropDown.bind(this);
     this.addEventListener('input', this.onInput);
     this.addEventListener('keydown', this.onKeyDown);
-    this.listElement.addEventListener('click', listClick);
-    btn.addEventListener('click', dropDown)
+    this.dropDownElem.addEventListener('click', dropDownSelect);
+    btn.addEventListener('click', toggleDropDown);
   }
 
   onInput() {
-    const input = this.shadowRoot.querySelector('input')
+    const input = this.shadowRoot.querySelector('input');
     const newValue = input.value;
     this.value = newValue;
     this.activeFocusIndex = -1;
     if (newValue !== '') {
-      this.displayList(this.getFilteredList(newValue));
+      this.displayDropDown(this.getFilteredList(newValue));
     }
   }
 
   onKeyDown(e) {
     const list = this.filteredPeople;
     const maxCount = list.length - 1;
-    if (e.keyCode == 40) {
+    if (e.keyCode === 40) {
       // down arrow key
       this.activeFocusIndex = (this.activeFocusIndex >= maxCount) ? 0 : this.activeFocusIndex + 1;
       this.activateListItem();
-    } else if (e.keyCode == 38) {
+    } else if (e.keyCode === 38) {
       // up arrow key
       this.activeFocusIndex = (this.activeFocusIndex === 0) ? maxCount : this.activeFocusIndex - 1;
       this.activateListItem();
-    } else if (e.keyCode == 13) {
+    } else if (e.keyCode === 13) {
       // enter key
       this.itemSelect(this.activeFocusIndex);
       e.preventDefault();
     }
   }
 
-  listClick(e) {
+  dropDownSelect(e) {
     const val = e.target.getAttribute('data-value');
     this.setValue(val);
     e.preventDefault();
   }
 
   itemSelect(index) {
-    const item = this.listElement.childNodes[index];
+    const item = this.dropDownElem.childNodes[index];
     const val = (item) ? item.getAttribute('data-value') : false;
     this.setValue(val);
 
@@ -133,103 +136,106 @@ class MAutocomplete extends HTMLElement {
       const input = this.shadowRoot.querySelector('input');
       this.value = val;
       input.value = val;
-      this.hideList();
+      this.hideDropDown();
       input.focus();
     }
   }
 
   activateListItem() {
-    const options = this.listElement.childNodes;
-    const listItem = this.listElement.querySelector(`div[data-index="${this.activeFocusIndex}"]`);
+    const options = this.dropDownElem.childNodes;
+    const listItem = this.dropDownElem.querySelector(`div[data-index="${this.activeFocusIndex}"]`);
     options.forEach(item => {
-      item.classList.remove('active')
+      item.classList.remove('active');
     });
     if (listItem && listItem.classList) {
       listItem.classList.add('active');
     }
   }
 
-  displayList(list) {
+  displayDropDown(list) {
     this.filteredPeople = list;
     if (!list || !list.length || list.length <= 0) {
-      this.hideList();
+      this.hideDropDown();
     } else {
-      this.showList(list);
+      this.showDropDown(list);
     }
   }
 
-  hideList() {
-    this.listElement.classList.remove('display');
-    this.listOpen = false;
+  hideDropDown() {
+    this.dropDownElem.classList.remove('display');
+    this.dropDownOpen = false;
   }
 
-  showList(list) {
-    const listElement = this.listElement;
-    listElement.classList.add('display');
-    listElement.innerHTML = '';
+  showDropDown(list) {
+    const dropDownElem = this.dropDownElem;
+    dropDownElem.classList.add('display');
+    dropDownElem.innerHTML = '';
     list.map((item, index) => {
-      listElement.append(this.createListItem(item, index))
+      dropDownElem.append(this.createListItem(item, index));
     });
-    this.listOpen = true;
+    this.dropDownOpen = true;
   }
 
   createListItem(item, index) {
+    const {name, picture} = item;
     const option = document.createElement('div');
-    const name = `${item.name.first} ${item.name.last}`;
-    const profileUrl = item.profile;
+    const fullName = (name) ? `${name.first} ${name.last}` : '';
+    const profileThumbnail = (picture) ? picture.thumbnail : '';
     const img = document.createElement('div');
     const profileImg = document.createElement('img');
-    profileImg.setAttribute('src', profileUrl);
+
+    profileImg.setAttribute('src', profileThumbnail);
     img.append(profileImg);
     img.className = 'icon-profile';
-    option.innerHTML = name;
+    option.innerHTML = fullName;
     option.className = 'list-item';
     option.setAttribute('data-index', index);
-    option.setAttribute('data-value', name);
+    option.setAttribute('data-value', fullName);
     option.prepend(img);
     return option;
   }
 
   getFilteredList(newValue) {
     const people = this.people;
+    const searchValue = newValue.toLowerCase();
     return people.reduce((newList, item, index) => {
-      const name = item.name;
-      if ((name.first + name.last).indexOf(newValue) !== -1) {
-        newList.push(item)
+      const fullName = (this.getFullname(item.name)).toLowerCase();
+      if (fullName.indexOf(searchValue) !== -1) {
+        newList.push(item);
       }
       return newList;
-    }, [])
+    }, []);
   }
 
-  dropDown() {
-    if (this.listOpen) {
-      this.hideList();
+  toggleDropDown() {
+    if (this.dropDownOpen) {
+      this.hideDropDown();
     } else {
-      this.showList(this.people);
+      this.showDropDown(this.people);
     }
   }
 
-  fetchList() {
-
-    return new Promise((resolve, reject) => {
-      return fetch(dataURL)
-        .then(res => {
-          resolve(res.json());
-        })
-        .then(err => reject(err))
-    })
+  async fetchData() {
+    const response = await fetch(DATAURL);
+    const json = await response.json();
+    return json;
   }
 
   disconnectedCallback() {
     const input = this.shadowRoot.querySelector('input');
-    const btn = this.shadowRoot.querySelector('.btn-toggle');
+    const btn = this.shadowRoot.querySelector('.btn-dropdown');
     if (!input || !btn) {
       return;
     }
     this.removeEventListener('input', this.onInput);
     this.removeEventListener('keydown', this.onKeyDown);
-    this.listElement.removeEventListener('click', listClick);
-    btn.addEventListener('click', dropDown)
+    this.dropDownElem.removeEventListener('click', this.dropDownSelect);
+    btn.removeEventListener('click', this.toggleDropDown);
+  }
+
+  getFullname(nameObj) {
+    const { first, last } = nameObj;
+    return `${first} ${last}`;
   }
 }
 

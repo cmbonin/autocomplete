@@ -1,0 +1,19 @@
+{
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 8,
+    "sourceType": "module"
+  },
+  "rules": {
+    "semi": 2,
+    "space-before-blocks": 2,
+    "eqeqeq": 2,
+    "indent": ["error", 2],
+    "prefer-const": "error",
+    "space-infix-ops": "error",
+    "quotes": ["error", "single"]
+  }
+}
